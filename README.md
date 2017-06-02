@@ -1,9 +1,7 @@
-# testlink.docker
+# Docker Hub Repository: https://hub.docker.com/r/bdeepak23/testlink
 
-Docker Hub Repository: https://hub.docker.com/r/suzukishunsuke/testlink/
-
-* Debian 8.6
-* testlink 1.9.15
+* Debian 8.8
+* testlink 1.9.16
 * apache
 * dumb-init 1.2.0
 * EXPOSE 80
@@ -16,50 +14,40 @@ Docker Hub Repository: https://hub.docker.com/r/suzukishunsuke/testlink/
   * APACHE_RUN_DIR=/var/run/apache2
   * APACHE_LOCK_DIR=/var/lock/apache2
   * TERM=xterm
-  * TESTLINK_VERSION=1.9.15
+  * TESTLINK_VERSION=1.9.16
   * DUMB_INIT_VERSION=1.2.0
 
 
-## Run
+# TestLink in Docker
+#### In order to run TestLink Test case management system in a docker container. Follow along:
 
-You have to the external database server.
-
-Run the docker container and access to /testlink with the web browser.
-Testlink has the web based installer.
-
-### Use mysql container
-
+#### Step 1: Create a docker network for the container to access MySQL DB
+```shell
+$ sudo docker network create mynetwork
 ```
-$ docker run -d -p 80:80 --name testlink --hostname testlink --link mysql:mysql suzukishunsuke/testlink
+#### Step 2: Instantiate a MySQL container
+ ```shell
+$ docker run -d --name mysql -p 3306:3306 --network mynetwork -v /Users/dockervol/mysql:/var/lib/mysql -e 'MYSQL_ROOT_NAME=root' -e 'MYSQL_ROOT_PASSWORD=password' mysql
 ```
-
-```yaml
-# docker-compose.yml
-testlink:
-  image: suzukishunsuke/testlink
-  hostname: testlink
-  ports:
-  - "80:80"
-  links:
-  - mysql
-mysql:
-  image: mysql:5.6.29
-  hostname: mysql
-  environment:
-    MYSQL_ROOT_PASSWORD: password
+#### Step 3: Create a database user and grant permissions
+```shell
+$ docker exec -it mysql bash
 ```
-
-### Use mysql server
-
+##### Inside the MySQL container
+```shell
+$ mysql -uroot -p
 ```
-$ docker run -d -p 80:80 --name testlink --hostname testlink suzukishunsuke/testlink
+##### Then run the following commands at the MySQL prompt:
+```sql
+CREATE DATABASE testlink;
+USE testlink;
+CREATE USER 'testadmin'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL ON *.* TO 'testadmin'@'localhost';
+FLUSH PRIVILEGES;
 ```
 
-```yaml
-# docker-compose.yml
-testlink:
-  image: suzukishunsuke/testlink
-  hostname: testlink
-  ports:
-  - "80:80"
+#### Step 4: Instantiate the TestLink container
+```shell
+$ docker run -d -p 80:80 --network mynetwork --name testlink bdeepak23/testlink
 ```
+#### Step 5: You should now be able to access testlink at http://localhost/testlink

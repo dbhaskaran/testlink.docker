@@ -1,4 +1,4 @@
-FROM debian:8.6
+FROM debian:latest
 ENV APACHE_RUN_USER=www-data \
     APACHE_RUN_GROUP=www-data \
     APACHE_LOG_DIR=/var/log/apache2 \
@@ -6,7 +6,7 @@ ENV APACHE_RUN_USER=www-data \
     APACHE_RUN_DIR=/var/run/apache2 \
     APACHE_LOCK_DIR=/var/lock/apache2 \
     TERM=xterm \
-    TESTLINK_VERSION=1.9.15 \
+    TESTLINK_VERSION=1.9.16 \
     DUMB_INIT_VERSION=1.2.0
 RUN apt-get update && \
     apt-get install -y apache2 php5 wget php5-mysql && \
